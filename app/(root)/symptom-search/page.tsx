@@ -1,10 +1,42 @@
 // app/symptom-search/page.tsx
 'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form'
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AutosizeTextarea } from '@/components/ui/autoresize-textarea';
+import { ModeToggle } from '@/components/mode-toggle';
+import { Button } from '@/components/ui/button';
+
+const FormSchema = z.object({
+  symptoms: z.string(),
+  duration: z.number().optional(),
+  pastContext: z.string().optional(),
+  otherInfo: z.string().optional(),
+});
 
 export default function SymptomSearchPage() {
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      symptoms: '',
+      duration: undefined,
+      pastContext: '',
+      otherInfo: '',
+    },
+  });
+
   const [symptoms, setSymptoms] = useState('');
   const [duration, setDuration] = useState<number | undefined>();
   const [pastContext, setPastContext] = useState('');
@@ -42,56 +74,54 @@ export default function SymptomSearchPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <section className="container mx-auto p-4">
+      <ModeToggle />
       <h1 className="text-2xl font-bold mb-4">Symptom Search</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="symptoms" className="block text-sm font-medium text-gray-700">Symptoms:</label>
-          <AutosizeTextarea
-            id="symptoms"
-            value={symptoms}
-            onChange={(e) => setSymptoms(e.target.value)}
-            required
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label htmlFor="duration" className="block text-sm font-medium text-gray-700">Duration (days):</label>
-          <input
-            type="number"
-            id="duration"
-            value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value, 10))}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="pastContext" className="block text-sm font-medium text-gray-700">Past related Context:</label>
-          <textarea
-            id="pastContext"
-            value={pastContext}
-            onChange={(e) => setPastContext(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="otherInfo" className="block text-sm font-medium text-gray-700">Other Information:</label>
-          <textarea
-            id="otherInfo"
-            value={otherInfo}
-            onChange={(e) => setOtherInfo(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          {loading ? 'Searching...' : 'Search'}
-        </button>
-        {error && <p className="text-red-500">{error}</p>}
-      </form>
-    </div>
+      <Form {...form}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="symptoms" className="block text-sm font-medium text-gray-700">Symptoms:</label>
+            <AutosizeTextarea
+              id="symptoms"
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              required
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">Duration (days):</label>
+            <input
+              type="number"
+              id="duration"
+              value={duration}
+              onChange={(e) => setDuration(parseInt(e.target.value, 10))}
+            />
+          </div>
+          <div>
+            <label htmlFor="pastContext" className="block text-sm font-medium text-gray-700">Past related Context:</label>
+            <textarea
+              id="pastContext"
+              value={pastContext}
+              onChange={(e) => setPastContext(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="otherInfo" className="block text-sm font-medium text-gray-700">Other Information:</label>
+            <textarea
+              id="otherInfo"
+              value={otherInfo}
+              onChange={(e) => setOtherInfo(e.target.value)}
+            />
+          </div>
+          <Button
+            type="submit"
+            disabled={loading}        >
+            {loading ? 'Searching...' : 'Search'}
+          </Button>
+          {error && <p className="text-red-500">{error}</p>}
+        </form>
+      </Form>
+    </section>
   );
 }
