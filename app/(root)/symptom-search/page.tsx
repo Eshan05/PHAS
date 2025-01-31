@@ -1,4 +1,3 @@
-// app/symptom-search/page.tsx
 'use client'
 
 import { useForm } from 'react-hook-form'
@@ -18,7 +17,11 @@ import { useRouter } from 'next/navigation';
 import { AutosizeTextarea } from '@/components/ui/autoresize-textarea';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'
+import { IoInformationOutline } from "react-icons/io5";
+import { ListOrderedIcon, TextCursorInputIcon } from 'lucide-react'
+import { Separator } from '@/components/ui/separator'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const FormSchema = z.object({
   symptoms: z.string(),
@@ -77,69 +80,97 @@ export default function SymptomSearchPage() {
   return (
     <section className="container mx-auto p-4">
       <ModeToggle />
-      <h1 className="text-2xl font-bold mb-4">Symptom Search</h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="symptoms"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Symptoms</FormLabel>
-                <FormControl>
-                  <AutosizeTextarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Duration</FormLabel>
-                <FormControl>
-                  <Input {...field} type="number" onChange={(e) => setDuration(Number(e.target.value))} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="pastContext"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Past Related Context</FormLabel>
-                <FormControl>
-                  <AutosizeTextarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='otherInfo'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Other Information</FormLabel>
-                <FormControl>
-                  <AutosizeTextarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            type="submit"
-            disabled={loading}        >
-            {loading ? 'Searching...' : 'Search'}
-          </Button>
-          {error && <p className="text-red-500">{error}</p>}
-        </form>
-      </Form>
+      <header>
+        <h1 className="shadow-heading">Symptom Analyzer</h1>
+      </header>
+      <main className=''>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="symptoms"
+              render={({ field }) => (
+                <FormItem className='lg:grid lg:grid-cols-3'>
+                  <FormLabel className="p-1">
+                    <header className="px-1 flex items-start gap-2 font-medium">
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <Button size={'sm-icon'} variant='outline' type='button'>
+                            <IoInformationOutline className='hover:text-black dark:hover:text-white text-muted-foreground' />
+                          </Button>
+                        </HoverCardTrigger>
+                        <HoverCardContent className='w-72 m-2 leading-normal bg-[#fff2] dark:bg-[#2224] backdrop-blur-lg'>
+                          <div className="space-y-1 flex flex-col">
+                            <h4 className="font-semibold text-base">Symptoms</h4>
+                            <p className="text-[.75rem] font-normal">
+                              Please either choose the list option to put in symptoms directly along with their duration in the input box next to it, or select the other option wherein you can use natural language to describe your symptoms.
+                            </p>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
+                      <article className='flex flex-col items-start lg:gap-1'>
+                        <span className='text-base -mt-0.5'>Symptoms</span>
+                        <div className='gap-2 space-evenly items-start lg:flex hidden'>
+                          <ToggleGroup type='multiple' className='p-1'>
+                            <ToggleGroupItem variant={'outline'} value="symptom-list" aria-label='symptom-list'><ListOrderedIcon className='w-4 h-4' /></ToggleGroupItem>
+                            <ToggleGroupItem variant={'outline'} value="symptom-nlp" aria-label='symptom-nlp'><TextCursorInputIcon className='w-4 h-4' /></ToggleGroupItem>
+                          </ToggleGroup>
+                          <p className='text-muted-foreground !text-sm inline-block'>Select one input mode (Hover over the information icon to know more), you can see examples for natural language input <Button size="none" type='button' variant="link">here</Button></p>
+                        </div>
+                      </article>
+                    </header>
+                  </FormLabel>
+                  <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
+                    <FormControl className=''>
+                      <AutosizeTextarea {...field} className='my-1' placeholder='Enter your symptoms here...' />
+                    </FormControl>
+                    <div className='gap-2 space-evenly items-start flex lg:hidden'>
+                      <ToggleGroup type='single' className='p-1'>
+                        <ToggleGroupItem value="symptom-list" aria-label='Toggle symptom list mode'><ListOrderedIcon className='w-4 h-4' /></ToggleGroupItem>
+                        <ToggleGroupItem value="symptom-nlp" aria-label='Toggle symptom NLP mode'><TextCursorInputIcon className='w-4 h-4' /></ToggleGroupItem>
+                      </ToggleGroup>
+                      <p className='text-muted-foreground !text-sm inline-block'>Select one input mode (Hover over the information icon to know more), you can see examples for natural language input <Button size="none" variant="link" type='button'>here</Button>. If you have any issues with list input, please contact <Button size="none" variant="link" type='button'>here</Button>.</p>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pastContext"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Past Related Context</FormLabel>
+                  <FormControl>
+                    <AutosizeTextarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='otherInfo'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Other Information</FormLabel>
+                  <FormControl>
+                    <AutosizeTextarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={loading}>
+              {loading ? 'Searching...' : 'Search'}
+            </Button>
+            {error && <p className="text-red-500">{error}</p>}
+          </form>
+        </Form>
+      </main>
     </section>
   );
 }
