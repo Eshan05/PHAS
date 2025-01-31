@@ -18,10 +18,11 @@ import { useRouter } from 'next/navigation';
 import { AutosizeTextarea } from '@/components/ui/autoresize-textarea';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input'
 
 const FormSchema = z.object({
   symptoms: z.string(),
-  duration: z.number().optional(),
+  duration: z.string().or(z.number()).optional(),
   pastContext: z.string().optional(),
   otherInfo: z.string().optional(),
 });
@@ -45,8 +46,7 @@ export default function SymptomSearchPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setLoading(true);
     setError('');
 
@@ -55,8 +55,9 @@ export default function SymptomSearchPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ symptoms, duration, pastContext, otherInfo }),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
@@ -78,42 +79,59 @@ export default function SymptomSearchPage() {
       <ModeToggle />
       <h1 className="text-2xl font-bold mb-4">Symptom Search</h1>
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="symptoms" className="block text-sm font-medium text-gray-700">Symptoms:</label>
-            <AutosizeTextarea
-              id="symptoms"
-              value={symptoms}
-              onChange={(e) => setSymptoms(e.target.value)}
-              required
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">Duration (days):</label>
-            <input
-              type="number"
-              id="duration"
-              value={duration}
-              onChange={(e) => setDuration(parseInt(e.target.value, 10))}
-            />
-          </div>
-          <div>
-            <label htmlFor="pastContext" className="block text-sm font-medium text-gray-700">Past related Context:</label>
-            <textarea
-              id="pastContext"
-              value={pastContext}
-              onChange={(e) => setPastContext(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="otherInfo" className="block text-sm font-medium text-gray-700">Other Information:</label>
-            <textarea
-              id="otherInfo"
-              value={otherInfo}
-              onChange={(e) => setOtherInfo(e.target.value)}
-            />
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="symptoms"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Symptoms</FormLabel>
+                <FormControl>
+                  <AutosizeTextarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration</FormLabel>
+                <FormControl>
+                  <Input {...field} type="number" onChange={(e) => setDuration(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="pastContext"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Past Related Context</FormLabel>
+                <FormControl>
+                  <AutosizeTextarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='otherInfo'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Information</FormLabel>
+                <FormControl>
+                  <AutosizeTextarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button
             type="submit"
             disabled={loading}        >
