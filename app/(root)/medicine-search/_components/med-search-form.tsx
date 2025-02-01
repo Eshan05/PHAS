@@ -137,10 +137,37 @@ export default function MedSearchForm() {
           name="query"
           render={({ field }) => (
             <FormItem className='lg:grid lg:grid-cols-3 gap-2'>
-              <FormLabel>Query</FormLabel>
-              <FormControl>
-                <AutosizeTextarea {...field} className={`w-full ${loading ? 'cursor-not-allowed' : ''} $`} />
-              </FormControl>
+              <FormLabel className="p-1">
+                <header className="px-1 flex items-start gap-2 font-medium">
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <Button size={'sm-icon'} variant='outline' type='button'>
+                        <IoInformationOutline className='hover:text-black dark:hover:text-white text-muted-foreground' />
+                      </Button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className='w-72 m-2 leading-normal bg-[#fff2] dark:bg-[#2224] backdrop-blur-lg'>
+                      <div className="space-y-1 flex flex-col">
+                        <h4 className="font-semibold text-base">Query</h4>
+                        <p className="text-[.75rem] font-normal">
+                          You can choose to search for medicines either by diseases it&apos;s used for, by name, by side effects it has, by ingredient it contains or by dosage information.
+                        </p>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                  <article className='flex flex-col items-start lg:gap-1'>
+                    <span className='text-base -mt-0.5'>Query</span>
+                    <div className='gap-2 space-evenly items-start lg:flex hidden'>
+                      <p className='text-muted-foreground !text-sm inline-block'>Select a mode (Hover over the information icon to know more), you can see examples for different modes <Button size="none" type='button' variant="link">here</Button></p>
+                    </div>
+                  </article>
+                </header>
+              </FormLabel>
+              <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
+                <FormControl>
+                  <AutosizeTextarea {...field} className={`w-full ${loading ? 'cursor-not-allowed' : ''} $`} />
+                </FormControl>
+                <p className='text-muted-foreground !text-sm inline-block lg:hidden py-2 px-1'>Select a mode (Hover over the information icon to know more), you can see examples for different modes <Button size="none" type='button' variant="link">here</Button></p>
+              </div>
               <FormMessage />
             </FormItem>
           )}
