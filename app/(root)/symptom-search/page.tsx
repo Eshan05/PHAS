@@ -29,7 +29,7 @@ export default function SymptomSearchPage() {
           <main className='lg:max-w-6xl mx-auto border rounded-lg p-2 lg:p-6 bg-[#ddd2] dark:bg-[#2222] backdrop-blur-lg'>
             <SymptomFormMain />
           </main>
-          <section className="p-6 z-10 bg-[#eee2] dark:bg-[#2222] shadow rounded-lg w-full lg:w-1/2">
+          <section className="p-6 z-10 bg-[#eee2] dark:bg-[#2222] shadow rounded-lg w-full lg:w-1/2 border">
             <div className="flex items-center gap-2 mb-4">
               <FileQuestionIcon className="w-6 h-6" />
               <h1 className="text-3xl font-bold">FAQs</h1>

@@ -5,6 +5,7 @@ import SymptomSearch from '@/models/SymptomSearch';
 import { v4 as uuidv4 } from 'uuid';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function POST(req: Request) {
   try {
@@ -31,16 +32,13 @@ export async function POST(req: Request) {
 
     //! Need to improve this substantially
     const prompt = `
-      User Symptoms: ${symptoms}
-      Duration (days): ${duration || 'Not specified'}
+      User Symptoms Information: ${symptoms}
       Past Related Context: ${pastContext || 'None'}
       Other Information: ${otherInfo || 'None'}
-
-      Provide a detailed analysis of potential causes, recommended next steps, and when to seek immediate medical attention.  Format the response clearly and concisely. Be helpful and informative, but DO NOT provide medical advice. Include a disclaimer that this is not a substitute for professional medical advice.
-    `;
+`;
 
     // Call Gemini API in the background
-    generateGeminiResponse(searchId, prompt);
+    generateGeminiResponses(searchId, prompt);
     // Return the searchId to the client immediately
     return NextResponse.json({ searchId }, { status: 201 });
 
@@ -50,24 +48,49 @@ export async function POST(req: Request) {
   }
 }
 
-// Function to call Gemini and update the database (runs in the background)
-async function generateGeminiResponse(searchId: string, prompt: string) {
+async function generateGeminiResponses(searchId: string, initialPrompt: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Cumulative Prompt
+    const summarizePrompt = `Summarize the following user input into a concise, clear statement of the problem.  Focus on the key symptoms and relevant context:\n\n${initialPrompt}\n\nSummary:`;
+    const summarizeResult = await model.generateContent(summarizePrompt);
+    const cumulativePrompt = summarizeResult.response.text();
+    await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt });
 
-    // Update the database record with the Gemini response
-    await SymptomSearch.findOneAndUpdate({ searchId }, { geminiResponse: text });
-    console.log("Response Stored")
+    // Potential Conditions
+    const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Include an explanation of each condition:\n\nSummary: ${cumulativePrompt}\n\nPotential Conditions:`;
+    const conditionsResult = await model.generateContent(conditionsPrompt);
+    const potentialConditions = conditionsResult.response.text();
+    await SymptomSearch.findOneAndUpdate({ searchId }, { potentialConditions });
 
+    // Medicines
+    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms. Include a brief description of each medicine's purpose and potential side effects. **Do not give disclaimer**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nPotential Medicines:`;
+    const medicinesResult = await model.generateContent(medicinesPrompt);
+    const medicines = medicinesResult.response.text();
+    await SymptomSearch.findOneAndUpdate({ searchId }, { medicines });
+
+    // When to Seek Help
+    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care:\n\nSummary: ${cumulativePrompt}\n\nWhen to Seek Help:`;
+    const seekHelpResult = await model.generateContent(seekHelpPrompt);
+    const whenToSeekHelp = seekHelpResult.response.text();
+    await SymptomSearch.findOneAndUpdate({ searchId }, { whenToSeekHelp });
+
+    // Final Verdict
+    const verdictPrompt = `Provide a concise final verdict based on the following summary. Do not include disclaimers:\n\nSummary: ${cumulativePrompt}\n\nFinal Verdict:`;
+    const verdictResult = await model.generateContent(verdictPrompt);
+    const finalVerdict = verdictResult.response.text();
+    await SymptomSearch.findOneAndUpdate({ searchId }, { finalVerdict });
+    console.log("Response Stored: ", searchId);
   } catch (error) {
-    console.error("Error generating Gemini response:", error);
-    // Update the database with an error message if Gemini fails
+    console.error("Error generating Gemini responses:", error);
     await SymptomSearch.findOneAndUpdate(
       { searchId },
-      { geminiResponse: "An error occurred while generating the response. Please try again later." }
+      {
+        cumulativePrompt: "An error occurred for cumulative prompt.",
+        potentialConditions: "An error occurred for potential conditions.",
+        medicines: "An error occurred for medicines.",
+        whenToSeekHelp: "An error occurred for when to seek help.",
+        finalVerdict: "An error occurred for final verdict.",
+      }
     );
   }
 }

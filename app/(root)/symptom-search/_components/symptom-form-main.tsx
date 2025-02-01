@@ -24,7 +24,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const FormSchema = z.object({
   symptoms: z.string(),
-  duration: z.string().or(z.number()).optional(),
   pastContext: z.string().optional(),
   otherInfo: z.string().optional(),
 });
@@ -34,7 +33,6 @@ export default function SymptomFormMain() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       symptoms: '',
-      duration: undefined,
       pastContext: '',
       otherInfo: '',
     },

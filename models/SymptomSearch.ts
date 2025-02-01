@@ -4,10 +4,13 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 interface ISymptomSearch extends Document {
   searchId: string; // Unique ID for the search
   symptoms: string;
-  duration?: number;
   pastContext?: string;
   otherInfo?: string;
-  geminiResponse: string;
+  cumulativePrompt: string;
+  potentialConditions: string;
+  medicines: string;
+  whenToSeekHelp: string;
+  finalVerdict: string;
   createdAt: Date;
 }
 
@@ -17,7 +20,11 @@ const SymptomSearchSchema: Schema = new Schema({
   duration: { type: Number },
   pastContext: { type: String },
   otherInfo: { type: String },
-  geminiResponse: { type: String, default: '' }, // Might need to make more
+  cumulativePrompt: { type: String, default: '' },
+  potentialConditions: { type: String, default: '' },
+  medicines: { type: String, default: '' },
+  whenToSeekHelp: { type: String, default: '' },
+  finalVerdict: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
 });
 
