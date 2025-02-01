@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import dbConnect from '@/utils/dbConnect';
 import SymptomSearch from '@/models/SymptomSearch';
 import { v4 as uuidv4 } from 'uuid';
+import { createHash } from 'crypto';
+import { retryWithExponentialBackoff } from '@/lib/utils';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -23,7 +25,6 @@ export async function POST(req: Request) {
     const newSearch = new SymptomSearch({
       searchId,
       symptoms,
-      duration,
       pastContext,
       otherInfo,
     });
@@ -52,31 +53,51 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
   try {
     // Cumulative Prompt
     const summarizePrompt = `Summarize the following user input into a concise, clear statement of the problem.  Focus on the key symptoms and relevant context:\n\n${initialPrompt}\n\nSummary:`;
-    const summarizeResult = await model.generateContent(summarizePrompt);
+    const summarizeResult = await retryWithExponentialBackoff(() => model.generateContent(summarizePrompt));
     const cumulativePrompt = summarizeResult.response.text();
-    await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt });
+    const summaryHash = createHash('sha256').update(cumulativePrompt).digest('hex');
+
+    const existingSearch = await SymptomSearch.findOne({ summaryHash });
+    if (existingSearch) {
+      console.log("Using cached result");
+      await SymptomSearch.findOneAndUpdate(
+        { searchId },
+        {
+          cumulativePrompt: existingSearch.cumulativePrompt,
+          potentialConditions: existingSearch.potentialConditions,
+          medicines: existingSearch.medicines,
+          whenToSeekHelp: existingSearch.whenToSeekHelp,
+          finalVerdict: existingSearch.finalVerdict,
+          summaryHash,
+        }
+      );
+      return; // Exit early
+    }
+
+    await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt, summaryHash });
+
 
     // Potential Conditions
     const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Include an explanation of each condition:\n\nSummary: ${cumulativePrompt}\n\nPotential Conditions:`;
-    const conditionsResult = await model.generateContent(conditionsPrompt);
+    const conditionsResult = await retryWithExponentialBackoff(() => model.generateContent(conditionsPrompt));
     const potentialConditions = conditionsResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { potentialConditions });
 
     // Medicines
     const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms. Include a brief description of each medicine's purpose and potential side effects. **Do not give disclaimer**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nPotential Medicines:`;
-    const medicinesResult = await model.generateContent(medicinesPrompt);
+    const medicinesResult = await retryWithExponentialBackoff(() => model.generateContent(medicinesPrompt));
     const medicines = medicinesResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { medicines });
 
     // When to Seek Help
     const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care:\n\nSummary: ${cumulativePrompt}\n\nWhen to Seek Help:`;
-    const seekHelpResult = await model.generateContent(seekHelpPrompt);
+    const seekHelpResult = await retryWithExponentialBackoff(() => model.generateContent(seekHelpPrompt));
     const whenToSeekHelp = seekHelpResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { whenToSeekHelp });
 
     // Final Verdict
     const verdictPrompt = `Provide a concise final verdict based on the following summary. Do not include disclaimers:\n\nSummary: ${cumulativePrompt}\n\nFinal Verdict:`;
-    const verdictResult = await model.generateContent(verdictPrompt);
+    const verdictResult = await retryWithExponentialBackoff(() => model.generateContent(verdictPrompt));
     const finalVerdict = verdictResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { finalVerdict });
     console.log("Response Stored: ", searchId);

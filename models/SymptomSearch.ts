@@ -11,6 +11,7 @@ interface ISymptomSearch extends Document {
   medicines: string;
   whenToSeekHelp: string;
   finalVerdict: string;
+  summaryHash: string;
   createdAt: Date;
 }
 
@@ -25,6 +26,7 @@ const SymptomSearchSchema: Schema = new Schema({
   medicines: { type: String, default: '' },
   whenToSeekHelp: { type: String, default: '' },
   finalVerdict: { type: String, default: '' },
+  summaryHash: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
