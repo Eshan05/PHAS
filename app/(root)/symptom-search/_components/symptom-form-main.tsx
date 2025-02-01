@@ -226,7 +226,7 @@ export default function SymptomFormMain() {
             <Label htmlFor="data-share"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Don&apos;t share my inputs
+              Don&apos;t store my inputs
             </Label>
           </div>
         </section>

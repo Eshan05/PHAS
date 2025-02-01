@@ -102,7 +102,7 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms. If needed you can include medicines that are not over-the-counter. Return results as raw JSON array of objects as follows:
     
     \nMedicines = { name: String, commonUse: String, sideEffects: String[] }
-    \n(String), (String: Commonly used for and basic description of medicine), (String[]: Array of side effects)
+    \n(String), (String: Commonly used for and concise description of medicine (30-50 words)), (String[]: Array of side effects)
     \nReturn: Array<Medicines>
     \n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const medicinesResult = await retryWithExponentialBackoff(() => model.generateContent(medicinesPrompt));

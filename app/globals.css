@@ -211,6 +211,8 @@
 .text-grayish-purple { color: hsl(var(--grayish-purple)); }
 .text-dark-purple { color: hsl(var(--dark-purple)); }
 
+.small-caps { font-variant: small-caps; }
+
 @layer utilities {
   .shadow-heading {
     @apply bg-gradient-to-br dark:from-white from-black from-30% dark:to-white/40 to-black/40 bg-clip-text py-6 text-[2.5rem] font-medium leading-none tracking-tighter text-transparent text-balance sm:text-5xl md:text-6xl lg:text-7xl

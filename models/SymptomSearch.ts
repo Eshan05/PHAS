@@ -1,6 +1,6 @@
-// models/SymptomSearch.ts
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+// Needa add a boolean that flags whether to store inputs given by user or not
 interface ISymptomSearch extends Document {
   searchId: string; // Unique ID for the search
   symptoms: string;
