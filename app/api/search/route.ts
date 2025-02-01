@@ -7,7 +7,7 @@ import { createHash } from 'crypto';
 import { retryWithExponentialBackoff } from '@/lib/utils';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 
 export async function POST(req: Request) {
   try {
@@ -37,10 +37,8 @@ export async function POST(req: Request) {
       Past Related Context: ${pastContext || 'None'}
       Other Information: ${otherInfo || 'None'}
 `;
-
     // Call Gemini API in the background
     generateGeminiResponses(searchId, prompt);
-    // Return the searchId to the client immediately
     return NextResponse.json({ searchId }, { status: 201 });
 
   } catch (error) {
@@ -76,21 +74,20 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
 
     await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt, summaryHash });
 
-
     // Potential Conditions
-    const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Include an explanation of each condition:\n\nSummary: ${cumulativePrompt}\n\nPotential Conditions:`;
+    const conditionsPrompt = `Based on the following summary, list potential medical conditions in a numbered fashion only, ordered from most likely to least likely. Include an explanation of each condition and do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nPotential Conditions:`;
     const conditionsResult = await retryWithExponentialBackoff(() => model.generateContent(conditionsPrompt));
     const potentialConditions = conditionsResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { potentialConditions });
 
     // Medicines
-    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms. Include a brief description of each medicine's purpose and potential side effects. **Do not give disclaimer**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nPotential Medicines:`;
+    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms in a numbered fashion only (Don't include any introductory text). Include a brief description of each medicine's purpose and potential side effects, please also give it in a format that can be parsed and segregated. **Do not give disclaimer**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nPotential Medicines:`;
     const medicinesResult = await retryWithExponentialBackoff(() => model.generateContent(medicinesPrompt));
     const medicines = medicinesResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { medicines });
 
     // When to Seek Help
-    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care:\n\nSummary: ${cumulativePrompt}\n\nWhen to Seek Help:`;
+    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention in a numbered fashion only. List specific symptoms or situations that warrant urgent care:\n\nSummary: ${cumulativePrompt}\n\nWhen to Seek Help:`;
     const seekHelpResult = await retryWithExponentialBackoff(() => model.generateContent(seekHelpPrompt));
     const whenToSeekHelp = seekHelpResult.response.text();
     await SymptomSearch.findOneAndUpdate({ searchId }, { whenToSeekHelp });

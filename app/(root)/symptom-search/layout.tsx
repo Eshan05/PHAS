@@ -37,7 +37,7 @@ export default function RootLayout({
               </aside>
             </div>
           </header>
-          <main className="relative group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[13.33rem] ml-0">
+          <main className="relative group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[14rem] ml-0">
             {children}
             <footer className="w-full mx-auto relative">
               <Footer7 />

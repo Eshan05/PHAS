@@ -21,6 +21,8 @@ import { ListOrderedIcon, TextCursorInputIcon } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 
 const FormSchema = z.object({
   symptoms: z.string(),
@@ -207,11 +209,26 @@ export default function SymptomFormMain() {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={loading}>
-          {loading ? 'Forming Response...' : 'Analyze'}
-        </Button>
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Button
+              type="submit"
+              disabled={loading}>
+              {loading ? 'Forming Response...' : 'Analyze'}
+            </Button>
+            <Button type="button" variant={'secondary'}>
+              List of Symptoms
+            </Button>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Checkbox id="data-share" defaultChecked />
+            <Label htmlFor="data-share"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Don&apos;t share my inputs
+            </Label>
+          </div>
+        </section>
         {error && <p className="text-red-500">{error}</p>}
       </form>
     </Form>

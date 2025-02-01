@@ -6,8 +6,8 @@ const sections = [
     title: "Product",
     links: [
       { name: "Overview", href: "#" },
+      { name: "About", href: "#" },
       { name: "Pricing", href: "#" },
-      { name: "Marketplace", href: "#" },
       { name: "Features", href: "#" },
     ],
   },
