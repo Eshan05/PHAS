@@ -30,6 +30,25 @@ const FormSchema = z.object({
   query: z.string(),
 })
 
+const getQueryPlaceholder = (searchType: string) => {
+  switch (searchType) {
+    case 'disease':
+      return 'Enter disease name';
+    case 'name':
+      return 'Enter medicine name';
+    case 'sideEffects':
+      return 'Enter side effect(s)';
+    case 'ingredient':
+      return 'Enter ingredient name';
+    case 'similar':
+      return 'Enter medicine name';
+    case 'dosage':
+      return 'Enter dosage information';
+    default:
+      return '';
+  }
+};
+
 export default function MedSearchForm() {
   const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -42,6 +61,7 @@ export default function MedSearchForm() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [queryPlaceholder, setQueryPlaceholder] = useState<string>('');
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setLoading(true);
@@ -110,7 +130,10 @@ export default function MedSearchForm() {
               <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
                 <FormControl>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setQueryPlaceholder(getQueryPlaceholder(value));
+                    }}
                     defaultValue={field.value}
                   >
                     <SelectTrigger>
@@ -164,7 +187,7 @@ export default function MedSearchForm() {
               </FormLabel>
               <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
                 <FormControl>
-                  <AutosizeTextarea {...field} className={`w-full ${loading ? 'cursor-not-allowed' : ''} $`} />
+                  <AutosizeTextarea placeholder={queryPlaceholder} {...field} className={`w-full ${loading ? 'cursor-not-allowed' : ''} $`} />
                 </FormControl>
                 <p className='text-muted-foreground !text-sm inline-block lg:hidden py-2 px-1'>Select a mode (Hover over the information icon to know more), you can see examples for different modes <Button size="none" type='button' variant="link">here</Button></p>
               </div>
