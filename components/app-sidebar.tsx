@@ -94,17 +94,17 @@ const data = {
   ],
   projects: [
     {
-      name: "Design Engineering",
+      name: "Web Map",
       url: "#",
       icon: Frame,
     },
     {
-      name: "Sales & Marketing",
+      name: "Statistics",
       url: "#",
       icon: PieChart,
     },
     {
-      name: "Travel",
+      name: "Glossary",
       url: "#",
       icon: Map,
     },
@@ -113,7 +113,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props} className="z-20">
+    <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />

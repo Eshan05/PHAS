@@ -7,7 +7,9 @@ import { createHash } from 'crypto';
 import { retryWithExponentialBackoff } from '@/lib/utils';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
 async function generateGeminiResponses(searchId: string, initialPrompt: string) {
   try {
     // Cumulative Prompt
-    const summarizePrompt = `Summarize the following user input into a concise, clear statement of the problem.  Focus on the key symptoms and relevant context:\n\n${initialPrompt}\n\nSummary:`;
+    const summarizePrompt = `Summarize the following user input into a concise, clear statement of the problem. Focus on the key symptoms and relevant context:\n\n${initialPrompt}\n\nSummary:`;
     const summarizeResult = await retryWithExponentialBackoff(() => model.generateContent(summarizePrompt));
     const cumulativePrompt = summarizeResult.response.text();
     const summaryHash = createHash('sha256').update(cumulativePrompt).digest('hex');
@@ -75,21 +77,40 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt, summaryHash });
 
     // Potential Conditions
-    const conditionsPrompt = `Based on the following summary, list potential medical conditions in a numbered fashion only, ordered from most likely to least likely. Include an explanation of each condition and do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nPotential Conditions:`;
+    const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Return the results as a JSON array of objects. Each object should have the following keys: "name" (String), "description" (string, Description about condition), and "explanation" (String, Explanation on why it is a potential condition). Do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const conditionsResult = await retryWithExponentialBackoff(() => model.generateContent(conditionsPrompt));
-    const potentialConditions = conditionsResult.response.text();
+    let potentialConditions = conditionsResult.response.text();
+    try {
+      potentialConditions = JSON.stringify(JSON.parse(potentialConditions));
+    } catch (parseError) {
+      console.error("Error parsing conditions JSON:", parseError);
+      potentialConditions = "[]";
+    }
     await SymptomSearch.findOneAndUpdate({ searchId }, { potentialConditions });
 
+
     // Medicines
-    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms in a numbered fashion only (Don't include any introductory text). Include a brief description of each medicine's purpose and potential side effects, please also give it in a format that can be parsed and segregated. **Do not give disclaimer**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nPotential Medicines:`;
+    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms in a numbered fashion only (Don't include any introductory text) Return results as JSON array of objects. Each object should have the following keys: "name" (String), "commonUse" (String, what it's commonly used for and basic description of medicine), and "sideEffects" (String[], Array of side effects). **Do not give disclaimers**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const medicinesResult = await retryWithExponentialBackoff(() => model.generateContent(medicinesPrompt));
-    const medicines = medicinesResult.response.text();
+    let medicines = medicinesResult.response.text();
+    try {
+      medicines = JSON.stringify(JSON.parse(medicines));
+    } catch (parseError) {
+      console.error("Error parsing medicines JSON:", parseError);
+      medicines = "[]";
+    }
     await SymptomSearch.findOneAndUpdate({ searchId }, { medicines });
 
     // When to Seek Help
-    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention in a numbered fashion only. List specific symptoms or situations that warrant urgent care:\n\nSummary: ${cumulativePrompt}\n\nWhen to Seek Help:`;
+    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care. Return the results as a JSON array of objects.  Each object should have the following keys: "title" (String: Concise description), and "explanation" (String: More detailed explanation). Do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
     const seekHelpResult = await retryWithExponentialBackoff(() => model.generateContent(seekHelpPrompt));
-    const whenToSeekHelp = seekHelpResult.response.text();
+    let whenToSeekHelp = seekHelpResult.response.text();
+    try {
+      whenToSeekHelp = JSON.stringify(JSON.parse(whenToSeekHelp));
+    } catch (parseError) {
+      console.error("Error parsing whenToSeekHelp JSON:", parseError);
+      whenToSeekHelp = "[]";
+    }
     await SymptomSearch.findOneAndUpdate({ searchId }, { whenToSeekHelp });
 
     // Final Verdict

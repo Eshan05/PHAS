@@ -24,7 +24,7 @@ export default function RootLayout({
       <AppSidebar />
       <SidebarInset className="max-w-full group-has[[data-collapsible=icon]]/sidebar-wrapper:w-10 ">
         <section className="transition-[margin] ease-linear">
-          <header className="flex bg-zinc-50 dark:bg-[#09090b] h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[13.33rem] group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-full">
+          <header className="flex bg-zinc-50 dark:bg-[#09090b] h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[13.5rem] group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-full">
             <div className="flex items-center gap-2 px-4 justify-between w-full">
               <aside className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
@@ -37,7 +37,7 @@ export default function RootLayout({
               </aside>
             </div>
           </header>
-          <main className="relative group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[14rem] ml-0">
+          <main className="relative group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 md:ml-[13.75rem] ml-0">
             {children}
             <footer className="w-full mx-auto relative">
               <Footer7 />

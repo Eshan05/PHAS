@@ -8,21 +8,25 @@ interface PageProps {
   };
 }
 
+interface Condition {
+  name: string,
+  description: string
+  explanation: string
+}
+
+interface Medicine {
+  name: string,
+  commonUse: string
+  explanation: string
+}
+
+interface SeekHelp {
+  title: string,
+  explanation: string
+}
+
 // Helper function to split the numbered list into separate items
-const parseConditions = (text: string) => {
-  const regex = /(\d+\.\s+\*\*[^:]+:\*\*[^(\n]+\n?[^(\d\.)]+)/g;
-  const matches = text.match(regex);
 
-  if (!matches) return [];
-
-  return matches.map((condition) => {
-    const splitIndex = condition.indexOf('**') + 2;
-    const title = condition.slice(0, splitIndex).replace('**', '').trim();
-    const description = condition.slice(splitIndex).trim();
-
-    return { title, description };
-  });
-};
 
 export default async function SymptomSearchResultPage({ params }: PageProps) {
   await dbConnect();
@@ -33,7 +37,26 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
     notFound();
   }
 
-  const conditions = parseConditions(searchResult.potentialConditions);
+  let conditions: Condition[] = [];
+  try {
+    conditions = JSON.parse(searchResult.potentialConditions || "[]");
+  } catch (e) {
+    console.error("Error parsing conditions on frontend:", e);
+  }
+
+  let medicines: Medicine[] = [];
+  try {
+    medicines = JSON.parse(searchResult.medicines || "[]");
+  } catch (e) {
+    console.error("Error parsing medicines on frontend:", e);
+  }
+
+  let seekHelpItems: SeekHelp[] = [];
+  try {
+    seekHelpItems = JSON.parse(searchResult.whenToSeekHelp || "[]");
+  } catch (e) {
+    console.error("Error parsing whenToSeekHelp on frontend:", e);
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -47,27 +70,49 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
           </section>
 
           {/* Potential Conditions Section - List Format */}
-          <section className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Potential Conditions:</h2>
-            <div className="space-y-4">
-              {conditions.map((condition, index) => (
-                <div key={index} className="p-4 border rounded-md">
-                  <h3 className="font-semibold">{condition.title}</h3>
-                  <p>{condition.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+          {conditions.length > 0 && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold mb-2">Potential Conditions:</h2>
+              <ul>
+                {conditions.map((condition, index) => (
+                  <li key={index}>
+                    <strong>{condition.name}</strong>
+                    <p>{condition.description}</p>
+                    <p>{condition.explanation}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-          <section className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Potential Medicines:</h2>
-            <p>{searchResult.medicines}</p>
-          </section>
+          {medicines.length > 0 && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold mb-2">Potential Medicines:</h2>
+              <ul>
+                {medicines.map((medicine, index) => (
+                  <li key={index}>
+                    <strong>{medicine.name}</strong>
+                    <p>Common Use: {medicine.commonUse}</p>
+                    <p>{medicine.explanation}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-          <section className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">When to Seek Help:</h2>
-            <p>{searchResult.whenToSeekHelp}</p>
-          </section>
+          {seekHelpItems.length > 0 && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold mb-2">When to Seek Help:</h2>
+              <ul>
+                {seekHelpItems.map((item, index) => (
+                  <li key={index}>
+                    <strong>{item.title}</strong>
+                    <p>{item.explanation}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section>
             <h2 className="text-lg font-semibold mb-2">Final Verdict:</h2>

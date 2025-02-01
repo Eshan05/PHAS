@@ -60,7 +60,8 @@ export default function SymptomFormMain() {
 
       if (response.ok) {
         const data = await response.json();
-        router.push(`/symptom-search/${data.searchId}`); //
+        window.open(`/symptom-search/${data.searchId}`, '_blank');
+        // router.push(`/symptom-search/${data.searchId}`);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'An error occurred');
@@ -142,7 +143,7 @@ export default function SymptomFormMain() {
                       <div className="space-y-1 flex flex-col">
                         <h4 className="font-semibold text-base">Past Related Context</h4>
                         <p className="text-[.75rem] font-normal">
-                          If you have any past related context, please enter it here.
+                          If you have any past related context, please enter it here. Optional, but recommended.
                         </p>
                       </div>
                     </HoverCardContent>
@@ -157,7 +158,7 @@ export default function SymptomFormMain() {
               </FormLabel>
               <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
                 <FormControl>
-                  <AutosizeTextarea {...field} className='my-1' placeholder='Enter your past related context here...' />
+                  <AutosizeTextarea {...field} className='my-1' placeholder='Enter your past related context here... (Optional)' />
                 </FormControl>
                 <div className='gap-2 space-evenly items-start flex lg:hidden'>
                   <p className='text-muted-foreground !text-sm inline-block p-1'>If you have any useful past related context please enter it here, you can see examples for some inputs <Button size="none" type='button' variant="link">here</Button></p>
@@ -184,7 +185,7 @@ export default function SymptomFormMain() {
                       <div className="space-y-1 flex flex-col">
                         <h4 className="font-semibold text-base">Other Information</h4>
                         <p className="text-[.75rem] font-normal">
-                          If you any more information, please enter it here. Details from your profile like age, location and other information will be included by default, so you can skip including those.
+                          If you any more information, please enter it here. Details from your profile like age, location and other information will be included by default, so you can skip including those. Optional, but recommended.
                         </p>
                       </div>
                     </HoverCardContent>
@@ -199,7 +200,7 @@ export default function SymptomFormMain() {
               </FormLabel>
               <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
                 <FormControl>
-                  <AutosizeTextarea {...field} className='my-1' placeholder='Enter other information here...' />
+                  <AutosizeTextarea {...field} className='my-1' placeholder='Enter other information here... (Optional)' />
                 </FormControl>
                 <div className='gap-2 space-evenly items-start flex lg:hidden'>
                   <p className='text-muted-foreground !text-sm inline-block p-1'>If you feel like you have any more information that you want to include, please enter it here. You can see examples for some inputs <Button size="none" type='button' variant="link">here</Button></p>
