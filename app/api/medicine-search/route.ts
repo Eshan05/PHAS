@@ -64,7 +64,7 @@ async function generateMedicineResponse(searchId: string, searchType: string, qu
       case 'name':
         prompt = `Provide information about the medicine named "${query}". Return a JSON object with the following structure:
         \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
-        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \n(String: Medicine name), (String: Function of medicine including how it works), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
         \nThe "dosageInformation" object should have the following structure:
         \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
         \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)

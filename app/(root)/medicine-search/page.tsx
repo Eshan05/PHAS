@@ -26,7 +26,12 @@ export default function MedicineSearchPage() {
 
       if (response.ok) {
         const data = await response.json();
-        router.push(`/medicine-search/${data.searchId}`);
+        if (searchType === 'disease' || searchType === 'name') {
+          const encodedQuery = encodeURIComponent(query);
+          router.push(`/medicine-search/${searchType}/${encodedQuery}`);
+        } else {
+          router.push(`/medicine-search/${data.searchId}`);
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'An error occurred');
