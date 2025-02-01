@@ -20,11 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider >
+    <SidebarProvider className="overflow-x-hidden">
       <AppSidebar />
       <SidebarInset className="max-w-full group-has[[data-collapsible=icon]]/sidebar-wrapper:w-10 ">
         <section className="transition-[margin] ease-linear">
-          <header className="flex bg-zinc-50 dark:bg-[#09090b] h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 w-full">
+          <header className="flex bg-zinc-50 dark:bg-[#09090b] h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 ml-[13rem] group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-full">
             <div className="flex items-center gap-2 px-4 justify-between w-full">
               <aside className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
@@ -37,7 +37,7 @@ export default function RootLayout({
               </aside>
             </div>
           </header>
-          <main className="relative ml-auto">
+          <main className="relative group-has-[[data-collapsible=icon]]/sidebar-wrapper:ml-0 ml-[13rem]">
             {children}
             <footer className="w-full mx-auto relative">
               <Footer7 />
