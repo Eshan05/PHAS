@@ -1,29 +1,29 @@
 "use client"
 
-import * as React from "react"
 import {
   AudioWaveform,
   BookOpen,
   Bot,
   Command,
+  FileUserIcon,
   Frame,
   GalleryVerticalEnd,
   Map,
+  Newspaper,
   PieChart,
   ScanSearch,
-  SquareTerminal,
+  User2Icon
 } from "lucide-react"
+import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
+  SidebarRail
 } from "@/components/ui/sidebar"
 
 // This is sample data.
@@ -54,7 +54,7 @@ const data = {
     {
       title: "Account",
       url: "#",
-      icon: SquareTerminal,
+      icon: User2Icon,
       isActive: true,
       items: [
         {
@@ -89,7 +89,12 @@ const data = {
     {
       title: "Appointment Notes",
       url: "#",
-      icon: PieChart,
+      icon: FileUserIcon,
+    },
+    {
+      title: "Medical News",
+      url: "#",
+      icon: Newspaper
     }
   ],
   projects: [

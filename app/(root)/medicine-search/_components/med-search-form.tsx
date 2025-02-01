@@ -61,6 +61,8 @@ export default function MedSearchForm() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  // const [searchType, setSearchType] = useState<'disease' | 'name' | 'sideEffects' | 'ingredient' | 'similar' | 'dosage' | '' | null>('');
+  const [searchType, setSearchType] = useState<string>('');
   const [queryPlaceholder, setQueryPlaceholder] = useState<string>('');
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -130,9 +132,10 @@ export default function MedSearchForm() {
               <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
                 <FormControl>
                   <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setQueryPlaceholder(getQueryPlaceholder(value));
+                    onValueChange={(v) => {
+                      field.onChange(v);
+                      setSearchType(v);
+                      setQueryPlaceholder(getQueryPlaceholder(v));
                     }}
                     defaultValue={field.value}
                   >
@@ -195,12 +198,29 @@ export default function MedSearchForm() {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? 'Searching...' : 'Search'}
-        </Button>
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Button
+              type="submit"
+              disabled={loading}>
+              {loading ? 'Forming Response...' : 'Search'}
+            </Button>
+            {searchType === 'disease' && <Button type="button" variant="secondary">List of diseases</Button>}
+            {searchType === 'name' && <Button type="button" variant="secondary">List of medicines and drugs</Button>}
+            {searchType === 'sideEffects' && <Button type="button" variant="secondary">List of common side effects</Button>}
+            {searchType === 'ingredient' && <Button type="button" variant="secondary">List of medical ingredients</Button>}
+            {searchType === 'similar' && <Button type="button" variant="secondary">List of medicines and drugs</Button>}
+            {searchType === 'dosage' && <Button type="button" variant="secondary">Types of dosage</Button>}
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Checkbox id="data-share" defaultChecked />
+            <Label htmlFor="data-share"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Don&apos;t store my inputs
+            </Label>
+          </div>
+        </section>
         {error && <p className="text-red-500">{error}</p>}
       </form>
     </Form>
