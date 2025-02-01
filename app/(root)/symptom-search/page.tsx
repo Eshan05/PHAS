@@ -20,9 +20,7 @@ export default function SymptomSearchPage() {
   const [error, setError] = useState('');
 
   return (
-    <section className="relative overflow-x-hidden flex flex-col h-screen font-inter min-h-svh bg-zinc-50 dark:bg-[#09090b]">
-      <GradientTop />
-      <ModeToggle />
+    <section className="relative overflow-x-hidden flex flex-col h-screen font-inter min-h-svh">
       <div className="w-full px-[1.15rem] py-8 lg:px-8 lg:py-10 z-10">
         <header className='relative flex items-center lg:mb-10 space-y-8'>
           <h1 className="shadow-heading">Symptom Analyzer</h1>
