@@ -52,40 +52,57 @@ async function generateMedicineResponse(searchId: string, searchType: string, qu
 
     switch (searchType) {
       case 'disease':
-        prompt = `List medicines commonly used to treat ${query}. Return the results as a JSON array of objects.  Each object should have the following structure: 
-        \n Medicine = { name, function, commonUses, dosage, administration, sideEffects, additionalinfo }
-        \n (String: Medicine name), (String: Function of medicine), (String[]: Common uses), (String: Dosage), (String: Administration), (String[]: Side effects), (String: Any other information)
-        Return: Array<Medicine>
-        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
+        prompt = `List medicines commonly used to treat ${query}.  Return the results as a JSON array of objects. Each object should represent a medicine and have the following structure:
+        \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
+        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \nThe "dosageInformation" object should have the following structure:
+        \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
+        \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
+        \nReturn: Array<Medicine>
+        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
         break;
       case 'name':
-        prompt = `Provide information about the medicine named "${query}". Return as a JSON object as follows: 
-        \n Medicine = { name, function, commonUses, dosage, administration, sideEffects, additionalinfo }
-        \n (String: Medicine name), (String: Function of medicine), (String[]: Common uses), (String: Dosage), (String: Administration), (String[]: Side effects), (String: Any other information)
-        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
+        prompt = `Provide information about the medicine named "${query}". Return a JSON object with the following structure:
+        \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
+        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \nThe "dosageInformation" object should have the following structure:
+        \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
+        \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
+        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
         break;
       case 'sideEffects':
-        prompt = `List medicines that are known to have the following side effect(s): ${query}. Return as a JSON array of objects as follows:
-        \n Medicine = { name, function, common uses, dosage, administration, side effects, additionalinfo }
-        \n (String: Medicine name), (String: Function of medicine), (String[]: Common uses), (String: Dosage), (String: Administration), (String[]: Side effects), (String: Any other information)
-        Return: Array<Medicine>
-        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
+        prompt = `List medicines that are known to have the following side effect(s): ${query}. Return as a JSON array of objects with the following structure:
+        \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
+        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \nThe "dosageInformation" object should have the following structure:
+        \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
+        \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
+        \nReturn: Array<Medicine>
+        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
         break;
       case 'ingredient':
-        prompt = `Provide information about the medicine ingredient: "${query}". Include details on what types of medicines it is used in, its mechanism of action, and potential side effects. Return as a JSON object with as follows:
-        \n Ingredient = { name, uses, mechanism, sideEffects }
-        \n (String: Ingredient name), (String: Used in medicines), (String: Mechanism of action), (String[]: Side effects)
+        prompt = `Provide information about the medicine ingredient: "${query}". Include details on what types of medicines it is used in, its mechanism of action, and potential side effects.  Return as a JSON object with the following structure:
+        \nIngredient = { name, uses, mechanism, sideEffects, dosageInformation }
+        \n(String: Ingredient name), (String: Used in medicines), (String: Mechanism of action), (String[]: Side effects), (Object: Dosage Information).
+        \nThe "dosageInformation" object should have the following structure:
+        \nDosageInformation = { generalDosageNotes }
+        \n(String: General dosage information and considerations related to the ingredient)
         \n\nJSON Output (Don't include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
         break;
+
       case 'similar':
-        prompt = `List medicines similar to "${query}". Include a brief explanation of how they are similar and any key differences as well descriptions/function of the medicines themselves. Return as a JSON array of objects as follows:
-        \n SimilarMedicine = { name, function, commonUses, similarities, differences }
-        \n (String: Medicine name), (String: Function of medicine), (String: Common uses), (String: Similarities), (String: Differences)
-        \n Return: Array<SimilarMedicine>
-        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
+        prompt = `List medicines similar to "${query}".  Include a brief explanation of how they are similar and any key differences, as well as descriptions/functions of the medicines themselves. Return as a JSON array of objects with the following structure:
+        \nSimilarMedicine = { name, function, commonUses, dosageInformation, similarities, differences }
+        \n(String: Medicine name), (String: Function of medicine), (String: Common uses), (Object: Dosage Information), (String: Similarities), (String: Differences).
+        \nThe "dosageInformation" object should have the following structure:
+        \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
+        \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
+        \nReturn: Array<SimilarMedicine>
+        \n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
         break;
+
       default:
-        throw new Error("Invalid searchType"); // Should never happen
+        throw new Error("Invalid searchType");
     }
 
     const geminiResult = await retryWithExponentialBackoff(() => model.generateContent(prompt));
