@@ -1,176 +1,52 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form'
-
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { AutosizeTextarea } from '@/components/ui/autoresize-textarea';
 import { ModeToggle } from '@/components/mode-toggle';
-import { Button } from '@/components/ui/button';
-import { IoInformationOutline } from "react-icons/io5";
-import { ListOrderedIcon, TextCursorInputIcon } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-
-const FormSchema = z.object({
-  symptoms: z.string(),
-  duration: z.string().or(z.number()).optional(),
-  pastContext: z.string().optional(),
-  otherInfo: z.string().optional(),
-});
+import dynamic from 'next/dynamic';
+import { GradientTop } from '@/components/gradientTop';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { FileQuestionIcon, StarIcon } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+const SymptomFormMain = dynamic(() => import('./_components/symptom-form-main'), { ssr: false });
 
 export default function SymptomSearchPage() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      symptoms: '',
-      duration: undefined,
-      pastContext: '',
-      otherInfo: '',
-    },
-  });
 
-  const [symptoms, setSymptoms] = useState('');
-  const [duration, setDuration] = useState<number | undefined>();
-  const [pastContext, setPastContext] = useState('');
-  const [otherInfo, setOtherInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
-
-  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        router.push(`/symptom-search/${data.searchId}`); //
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'An error occurred');
-      }
-    } catch (err) {
-      setError('An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
-    <section className="container mx-auto p-4">
+    <section className="relative overflow-x-hidden flex flex-col h-screen font-inter min-h-svh bg-zinc-50 dark:bg-[#09090b]">
+      <GradientTop />
       <ModeToggle />
-      <header>
-        <h1 className="shadow-heading">Symptom Analyzer</h1>
-      </header>
-      <main className=''>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="symptoms"
-              render={({ field }) => (
-                <FormItem className='lg:grid lg:grid-cols-3'>
-                  <FormLabel className="p-1">
-                    <header className="px-1 flex items-start gap-2 font-medium">
-                      <HoverCard>
-                        <HoverCardTrigger asChild>
-                          <Button size={'sm-icon'} variant='outline' type='button'>
-                            <IoInformationOutline className='hover:text-black dark:hover:text-white text-muted-foreground' />
-                          </Button>
-                        </HoverCardTrigger>
-                        <HoverCardContent className='w-72 m-2 leading-normal bg-[#fff2] dark:bg-[#2224] backdrop-blur-lg'>
-                          <div className="space-y-1 flex flex-col">
-                            <h4 className="font-semibold text-base">Symptoms</h4>
-                            <p className="text-[.75rem] font-normal">
-                              Please either choose the list option to put in symptoms directly along with their duration in the input box next to it, or select the other option wherein you can use natural language to describe your symptoms.
-                            </p>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
-                      <article className='flex flex-col items-start lg:gap-1'>
-                        <span className='text-base -mt-0.5'>Symptoms</span>
-                        <div className='gap-2 space-evenly items-start lg:flex hidden'>
-                          <ToggleGroup type='multiple' className='p-1'>
-                            <ToggleGroupItem variant={'outline'} value="symptom-list" aria-label='symptom-list'><ListOrderedIcon className='w-4 h-4' /></ToggleGroupItem>
-                            <ToggleGroupItem variant={'outline'} value="symptom-nlp" aria-label='symptom-nlp'><TextCursorInputIcon className='w-4 h-4' /></ToggleGroupItem>
-                          </ToggleGroup>
-                          <p className='text-muted-foreground !text-sm inline-block'>Select one input mode (Hover over the information icon to know more), you can see examples for natural language input <Button size="none" type='button' variant="link">here</Button></p>
-                        </div>
-                      </article>
-                    </header>
-                  </FormLabel>
-                  <div className='w-full lg:col-span-2 -mt-4 lg:mt-0 p-1'>
-                    <FormControl className=''>
-                      <AutosizeTextarea {...field} className='my-1' placeholder='Enter your symptoms here...' />
-                    </FormControl>
-                    <div className='gap-2 space-evenly items-start flex lg:hidden'>
-                      <ToggleGroup type='single' className='p-1'>
-                        <ToggleGroupItem value="symptom-list" aria-label='Toggle symptom list mode'><ListOrderedIcon className='w-4 h-4' /></ToggleGroupItem>
-                        <ToggleGroupItem value="symptom-nlp" aria-label='Toggle symptom NLP mode'><TextCursorInputIcon className='w-4 h-4' /></ToggleGroupItem>
-                      </ToggleGroup>
-                      <p className='text-muted-foreground !text-sm inline-block'>Select one input mode (Hover over the information icon to know more), you can see examples for natural language input <Button size="none" variant="link" type='button'>here</Button>. If you have any issues with list input, please contact <Button size="none" variant="link" type='button'>here</Button>.</p>
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="pastContext"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="">Past Related Context</FormLabel>
-                  <FormControl>
-                    <AutosizeTextarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='otherInfo'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="">Other Information</FormLabel>
-                  <FormControl>
-                    <AutosizeTextarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              disabled={loading}>
-              {loading ? 'Searching...' : 'Search'}
-            </Button>
-            {error && <p className="text-red-500">{error}</p>}
-          </form>
-        </Form>
-      </main>
+      <div className="w-full px-[1.15rem] py-8 lg:px-8 lg:py-10 z-10">
+        <header className='relative flex items-center lg:mb-10 space-y-8'>
+          <h1 className="shadow-heading">Symptom Analyzer</h1>
+        </header>
+        <section className='flex flex-col lg:flex-row gap-4 lg:items-start lg:justify-between'>
+          <main className='lg:max-w-6xl mx-auto border rounded-lg p-2 lg:p-6 bg-[#ddd2] dark:bg-[#2222] backdrop-blur-lg'>
+            <SymptomFormMain />
+          </main>
+          <section className="p-6 z-10 bg-[#eee2] dark:bg-[#2222] shadow rounded-lg w-full lg:w-1/2">
+            <div className="flex items-center gap-2 mb-4">
+              <FileQuestionIcon className="w-6 h-6" />
+              <h1 className="text-3xl font-bold">FAQs</h1>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1" className='font-bold border-b-light-pink'>
+                <AccordionTrigger className='font-semibold text-sm md:text-base'>Disclaimer</AccordionTrigger>
+                <AccordionContent className='text-xs font-medium pb-2 inline-block'>
+                  <p>This information is generated by an AI and is not a substitute for professional medical advice.  Always consult with a qualified healthcare provider for any health concerns.</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+        </section>
+      </div>
     </section>
   );
 }
