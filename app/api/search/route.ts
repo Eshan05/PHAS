@@ -9,7 +9,10 @@ import { retryWithExponentialBackoff } from '@/lib/utils';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  generationConfig: { responseMimeType: "application/json" }
+});
 
 export async function POST(req: Request) {
   try {
@@ -77,7 +80,13 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     await SymptomSearch.findOneAndUpdate({ searchId }, { cumulativePrompt, summaryHash });
 
     // Potential Conditions
-    const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Return the results as a JSON array of objects. Each object should have the following keys: "name" (String), "description" (string, Description about condition), and "explanation" (String, Explanation on why it is a potential condition). Do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
+    const conditionsPrompt = `Based on the following summary, list potential medical conditions, ordered from most likely to least likely. Return the results as a JSON array of objects.
+    
+    \nConditions = { name: String, description: String, explanation: String } 
+    \n(String), (String: Description about condition), (String: Explanation on why it is a potential condition). 
+    \nReturn: Array<Conditions>
+    \n\nSummary: ${cumulativePrompt}
+    \nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const conditionsResult = await retryWithExponentialBackoff(() => model.generateContent(conditionsPrompt));
     let potentialConditions = conditionsResult.response.text();
     try {
@@ -90,7 +99,12 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
 
 
     // Medicines
-    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms in a numbered fashion only (Don't include any introductory text) Return results as JSON array of objects. Each object should have the following keys: "name" (String), "commonUse" (String, what it's commonly used for and basic description of medicine), and "sideEffects" (String[], Array of side effects). **Do not give disclaimers**, if needed you can include medicines that are not over-the-counter:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
+    const medicinesPrompt = `Based on the following summary, list potential over-the-counter or common medicines that *might* help alleviate the symptoms. If needed you can include medicines that are not over-the-counter. Return results as raw JSON array of objects as follows:
+    
+    \nMedicines = { name: String, commonUse: String, sideEffects: String[] }
+    \n(String), (String: Commonly used for and basic description of medicine), (String[]: Array of side effects)
+    \nReturn: Array<Medicines>
+    \n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const medicinesResult = await retryWithExponentialBackoff(() => model.generateContent(medicinesPrompt));
     let medicines = medicinesResult.response.text();
     try {
@@ -102,7 +116,13 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     await SymptomSearch.findOneAndUpdate({ searchId }, { medicines });
 
     // When to Seek Help
-    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care. Return the results as a JSON array of objects.  Each object should have the following keys: "title" (String: Concise description), and "explanation" (String: More detailed explanation). Do not give any disclaimer or notes:\n\nSummary: ${cumulativePrompt}\n\nJSON Output (Do not include any additional text, formatting, or markdown code blocks.  Return ONLY the raw JSON):`;
+    const seekHelpPrompt = `Based on the following summary, provide advice on when to seek immediate medical attention. List specific symptoms or situations that warrant urgent care as. Return the results as a JSON array of objects as follows: 
+    
+    \nSeekHelp = { title: String, explanation: String }
+    \n(String: Concise description), (String: More detailed explanation).
+    \n Return: Array<SeekHelp>
+    \n\nSummary: ${cumulativePrompt}
+    \nJSON Output (Do not include any additional text, formatting, or markdown code blocks. Return ONLY the raw JSON):`;
     const seekHelpResult = await retryWithExponentialBackoff(() => model.generateContent(seekHelpPrompt));
     let whenToSeekHelp = seekHelpResult.response.text();
     try {

@@ -17,7 +17,7 @@ interface Condition {
 interface Medicine {
   name: string,
   commonUse: string
-  explanation: string
+  sideEffects: string[]
 }
 
 interface SeekHelp {
@@ -93,7 +93,12 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
                   <li key={index}>
                     <strong>{medicine.name}</strong>
                     <p>Common Use: {medicine.commonUse}</p>
-                    <p>{medicine.explanation}</p>
+                    <ul>
+                      <li>Side Effects:</li>
+                      {medicine.sideEffects.map((sideEffect, sideEffectIndex) => (
+                        <li key={sideEffectIndex}>{sideEffect}</li>
+                      ))}
+                    </ul>
                   </li>
                 ))}
               </ul>
