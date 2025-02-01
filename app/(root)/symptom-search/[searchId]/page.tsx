@@ -15,6 +15,7 @@ import { FlagIcon, InfoIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { IoInformationOutline } from 'react-icons/io5';
 import { BsArrowReturnRight } from "react-icons/bs";
+import Link from 'next/link';
 
 interface PageProps {
   params: {
@@ -92,9 +93,10 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
           <h1 className="shadow-heading">Symptom Analyzer</h1>
         </header>
         <FadeContent blur={true} duration={500} easing='ease-in' initialOpacity={0}>
+          <p className='my-4'><Link href="/symptom-search" className='underline'>Go back to form</Link></p>
           {searchResult.cumulativePrompt ? (
             <article className='flex flex-col gap-4'>
-              <section className="flex md:items-start flex-col md:flex-row gap-4">
+              <section className="flex md:items-start flex-col md:flex-row gap-4 items-center">
                 <Card className="max-w-sm">
                   <CardHeader>
                     <CardTitle>Read This</CardTitle>
@@ -172,7 +174,7 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
                               <CardDescription className=''><p>Commonly used for {medicine.commonUse}</p></CardDescription>
                             </CardHeader>
                             <CardContent className='text-sm'>
-                              <section className={`flex ${medicine.sideEffects.length > 2 ? 'items-start' : 'items-center'} gap-2`}>
+                              <section className={`flex ${medicine.sideEffects.length > 3 ? 'items-start' : 'items-center'} gap-2`}>
                                 <b className='my-1 font-bold block p-2 text-center border rounded shadow'>Side<br /> Effects</b>
                                 <ul className='list-disc list-inside p-1'>
                                   {medicine.sideEffects.map((effect, index) => (
@@ -222,7 +224,7 @@ export default async function SymptomSearchResultPage({ params }: PageProps) {
                   </section>
                 )}
               </div>
-              <section className="flex md:items-start flex-col md:flex-row gap-4">
+              <section className="flex md:items-start flex-col md:flex-row gap-4 items-center">
                 <Card className="max-w-sm">
                   <CardHeader>
                     <CardTitle>Final Verdict</CardTitle>
