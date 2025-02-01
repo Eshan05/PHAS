@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-interface IMedicineSearch extends Document {
+export interface IMedicineSearch extends Document {
   searchId: string;
   searchType: 'disease' | 'name' | 'sideEffects' | 'ingredient' | 'similar'; // Type of search
   query: string;  // The user's search query

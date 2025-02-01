@@ -1,6 +1,11 @@
 import { notFound } from 'next/navigation';
 import dbConnect from '@/utils/dbConnect';
 import MedicineSearch from '@/models/Medicine';
+import { Medicine } from '../../[searchId]/page';
+
+interface Result {
+  Medicine: Medicine
+}
 
 interface PageProps {
   params: {
@@ -19,14 +24,15 @@ export default async function MedicineSearchResultPage({ params }: PageProps) {
     notFound();
   }
 
-  let resultData: any = null;
+  let resultData: Result | null = null;
   try {
     resultData = JSON.parse(searchResult.result || "{}");
   } catch (e) {
     console.error("Error parsing result JSON:", e);
-    resultData = {};
+    resultData = null;
   }
 
+  if (!resultData) notFound()
   const mr = resultData.Medicine
   const renderResult = () => {
     return (

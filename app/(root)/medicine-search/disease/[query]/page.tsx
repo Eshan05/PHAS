@@ -1,6 +1,7 @@
 import MedicineSearch from '@/models/Medicine';
 import dbConnect from '@/utils/dbConnect';
 import { notFound } from 'next/navigation';
+import { Medicine } from '../../[searchId]/page';
 
 interface PageProps {
   params: {
@@ -10,7 +11,7 @@ interface PageProps {
 
 export default async function MedicineSearchResultPage({ params }: PageProps) {
   await dbConnect();
-  const { query } = params;
+  const { query } = await params;
   const decodedQuery = decodeURIComponent(query);
 
   const searchResult = await MedicineSearch.findOne({ searchType: 'disease', query: decodedQuery });
@@ -18,18 +19,18 @@ export default async function MedicineSearchResultPage({ params }: PageProps) {
   if (!searchResult) {
     notFound();
   }
-  let resultData: any = null;
+  let resultData: Medicine[] | null = null;
   try {
     resultData = JSON.parse(searchResult.result || "{}");
   } catch (e) {
     console.error("Error parsing result JSON:", e);
-    resultData = {};
+    resultData = null;
   }
 
   const renderResult = () => {
     return (
       <ul>
-        {resultData.map((medicine: any, index: number) => (
+        {resultData!.map((medicine: Medicine, index: number) => (
           <li key={index}>
             <strong>{medicine.name}</strong>
             <p>Function: {medicine.function}</p>

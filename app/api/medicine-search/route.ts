@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 async function generateMedicineResponse(searchId: string, searchType: string, query: string) {
   try {
     let prompt = "";
-    let resultKey = 'result'; //? Change
+    const resultKey = 'result'; //? Change
 
     switch (searchType) {
       case 'disease':
