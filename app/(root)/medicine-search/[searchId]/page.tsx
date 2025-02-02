@@ -118,30 +118,37 @@ export default async function MedicineSearchResultPage({ params }: PageProps) {
           </div>
         );
       case 'sideEffects':
-        return (
-          <ul>
-            {(resultData as Medicine[]).map((medicine, index) => (
-              <li key={index}>
-                <strong>{medicine.name}</strong>
-                <p>Function: {medicine.function}</p>
-                <p>Common Uses: {medicine.commonUses.join(', ')}</p>
-                {medicine.dosageInformation && (
-                  <div>
-                    <p><strong>Dosage Information:</strong></p>
-                    <p>Adults: {medicine.dosageInformation.adults || "N/A"}</p>
-                    <p>Children: {medicine.dosageInformation.children || "N/A"}</p>
-                    <p>Special Populations: {medicine.dosageInformation.specialPopulations || "N/A"}</p>
-                    <p>Dosage Forms: {medicine.dosageInformation.dosageForms || "N/A"}</p>
-                    <p>General Notes: {medicine.dosageInformation.generalNotes || "N/A"}</p>
-                  </div>
-                )}
-                <p>Administration: {medicine.administration}</p>
-                <p>Side Effects: {medicine.sideEffects.join(', ')}</p>
-                <p>Additional Info: {medicine.additionalInfo}</p>
-              </li>
-            ))}
-          </ul>
-        )
+        if (typeof resultData === 'string') {
+          return <p>{resultData}</p>;
+        } else if (Array.isArray(resultData)) {
+
+          return (
+            <ul>
+              {(resultData as Medicine[]).map((medicine, index) => (
+                <li key={index}>
+                  <strong>{medicine.name}</strong>
+                  <p>Function: {medicine.function}</p>
+                  <p>Common Uses: {medicine.commonUses.join(', ')}</p>
+                  {medicine.dosageInformation && (
+                    <div>
+                      <p><strong>Dosage Information:</strong></p>
+                      <p>Adults: {medicine.dosageInformation.adults || "N/A"}</p>
+                      <p>Children: {medicine.dosageInformation.children || "N/A"}</p>
+                      <p>Special Populations: {medicine.dosageInformation.specialPopulations || "N/A"}</p>
+                      <p>Dosage Forms: {medicine.dosageInformation.dosageForms || "N/A"}</p>
+                      <p>General Notes: {medicine.dosageInformation.generalNotes || "N/A"}</p>
+                    </div>
+                  )}
+                  <p>Administration: {medicine.administration}</p>
+                  <p>Side Effects: {medicine.sideEffects.join(', ')}</p>
+                  <p>Additional Info: {medicine.additionalInfo}</p>
+                </li>
+              ))}
+            </ul>
+          )
+        } else {
+          return <p>500.</p>;
+        }
       case 'ingredient':
         const ingredient = resultData as Ingredient
         return (

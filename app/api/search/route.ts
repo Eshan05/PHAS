@@ -69,6 +69,7 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     const summarizeResult = await retryWithExponentialBackoff(() => model.generateContent(summarizePrompt));
     const cumulativePrompt = summarizeResult.response.text();
     const summaryHash = await generateSummaryHash(cumulativePrompt);
+    console.log(`Summary Hash: Generated`);
 
     const existingSearch = await SymptomSearch.findOne({ summaryHash });
     if (existingSearch) {

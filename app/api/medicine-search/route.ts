@@ -55,7 +55,7 @@ async function generateMedicineResponse(searchId: string, searchType: string, qu
       case 'disease':
         prompt = `List medicines commonly used to treat ${query}.  Return the results as a JSON array of objects. Each object should represent a medicine and have the following structure:
         \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
-        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \n(String: Medicine name), (String: Function of medicine and how it works), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
         \nThe "dosageInformation" object should have the following structure:
         \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
         \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
@@ -74,7 +74,7 @@ async function generateMedicineResponse(searchId: string, searchType: string, qu
       case 'sideEffects':
         prompt = `List medicines that are known to have the following side effect(s): ${query}. Return as a JSON array of objects with the following structure:
         \nMedicine = { name, function, commonUses, dosageInformation, administration, sideEffects, additionalInfo }
-        \n(String: Medicine name), (String: Function of medicine), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
+        \n(String: Medicine name), (String: Function of medicine and how it works), (String[]: Common uses), (Object: Dosage Information), (String: Administration), (String[]: Side effects), (String: Any other information).
         \nThe "dosageInformation" object should have the following structure:
         \nDosageInformation = { adults, children, specialPopulations, dosageForms, generalNotes }
         \n(String: Adult dosages), (String: Child dosages), (String: Dosage details for special populations), (String: Available dosage forms), (String: Important warnings or guidelines)
