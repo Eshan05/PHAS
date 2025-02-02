@@ -5,8 +5,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-// export const runtime = 'edge';
-
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
@@ -36,7 +34,7 @@ export async function POST(req: Request) {
       query,
     });
     await newSearch.save();
-    generateMedicineResponse(searchId, searchType, query)
+    await generateMedicineResponse(searchId, searchType, query)
 
     return NextResponse.json({ searchId }, { status: 201 });
 

@@ -16,6 +16,8 @@ async function generateSummaryHash(text: string): Promise<string> {
   return hashHex;
 }
 
+// export const runtime = 'edge';
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
@@ -53,7 +55,7 @@ export async function POST(req: Request) {
       Other Information: ${otherInfo || 'None'}
 `;
     // Call Gemini API in the background
-    generateGeminiResponses(searchId, prompt);
+    await generateGeminiResponses(searchId, prompt);
     return NextResponse.json({ searchId }, { status: 201 });
 
   } catch (error) {

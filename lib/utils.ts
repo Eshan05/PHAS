@@ -16,12 +16,14 @@ export async function retryWithExponentialBackoff<T>(
       return await fn();
       // @ts-expect-error ts(1196)
     } catch (error: Error) {
+      console.log(`Attempt ${attempt + 1} failed:`, error);
       if (error.status === 429 || error.message.includes("429")) { // Gemini error might not have .status
         attempt++;
         const delay = baseDelay * 2 ** attempt;
         console.log(`Rate limited. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
+        console.warn(`Non-429 error:`, error);
         throw error;
       }
     }
