@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dbConnect from '@/utils/dbConnect';
-import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'crypto';
 import { retryWithExponentialBackoff } from '@/lib/utils';
 import MedicineSearch from '@/models/Medicine';
+import dbConnect from '@/utils/dbConnect';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 
 export const runtime = 'edge';
 

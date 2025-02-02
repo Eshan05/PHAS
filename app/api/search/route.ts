@@ -3,8 +3,18 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import dbConnect from '@/utils/dbConnect';
 import SymptomSearch from '@/models/SymptomSearch';
 import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'crypto';
 import { retryWithExponentialBackoff } from '@/lib/utils';
+
+async function generateSummaryHash(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hash));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return hashHex;
+}
 
 export const runtime = 'edge';
 
@@ -60,7 +70,7 @@ async function generateGeminiResponses(searchId: string, initialPrompt: string) 
     const summarizePrompt = `Summarize the following user input into a concise, clear statement of the problem. Focus on the key symptoms and relevant context:\n\n${initialPrompt}\n\nSummary:`;
     const summarizeResult = await retryWithExponentialBackoff(() => model.generateContent(summarizePrompt));
     const cumulativePrompt = summarizeResult.response.text();
-    const summaryHash = createHash('sha256').update(cumulativePrompt).digest('hex');
+    const summaryHash = await generateSummaryHash(cumulativePrompt);
 
     const existingSearch = await SymptomSearch.findOne({ summaryHash });
     if (existingSearch) {
