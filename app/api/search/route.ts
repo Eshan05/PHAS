@@ -16,8 +16,6 @@ async function generateSummaryHash(text: string): Promise<string> {
   return hashHex;
 }
 
-export const runtime = 'edge';
-
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
